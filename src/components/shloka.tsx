@@ -11,6 +11,7 @@ import { ProgressIndicator } from "@/components/shloka/progress-indicator";
 import { AudioControls } from "@/components/shloka/audio-controls";
 import { LanguageControls } from "@/components/shloka/language-controls";
 import { ShlokaCard } from "@/components/shloka/shloka-card";
+import { Search } from "@/components/shloka/search";
 import { useSpeech } from "@/hooks/use-speech";
 
 export default function Shloka() {
@@ -347,23 +348,44 @@ export default function Shloka() {
                     </h1>
                     <p className="text-lg md:text-xl text-muted-foreground mb-4">Bhagavad Gita</p>
 
-                    {/* Progress Indicator */}
-                    <ProgressIndicator
-                        current={index}
-                        total={data.length}
-                        onChange={(newIndex) => {
-                            setIsAutoPlaying(false);
-                            setIsPlaying(false);
-                            stopSpeaking();
-                            if (audioRef.current) {
-                                audioRef.current.pause();
-                                audioRef.current.currentTime = 0;
-                            }
-                            if (timeoutRef.current) clearTimeout(timeoutRef.current);
-                            if (autoPlayTimeoutRef.current) clearTimeout(autoPlayTimeoutRef.current);
-                            setIndex(newIndex);
-                        }}
-                    />
+                    <div className="flex flex-col-reverse md:flex-row mx-auto items-center justify-between gap-y-4">
+
+                        {/* Progress Indicator */}
+                        <ProgressIndicator
+                            current={index}
+                            total={data.length}
+                            onChange={(newIndex) => {
+                                setIsAutoPlaying(false);
+                                setIsPlaying(false);
+                                stopSpeaking();
+                                if (audioRef.current) {
+                                    audioRef.current.pause();
+                                    audioRef.current.currentTime = 0;
+                                }
+                                if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                                if (autoPlayTimeoutRef.current) clearTimeout(autoPlayTimeoutRef.current);
+                                setIndex(newIndex);
+                            }}
+                        />
+
+                        {/* Search Bar */}
+                        <Search
+                            data={data}
+                            language={language}
+                            onResult={(newIndex) => {
+                                setIsAutoPlaying(false);
+                                setIsPlaying(false);
+                                stopSpeaking();
+                                if (audioRef.current) {
+                                    audioRef.current.pause();
+                                    audioRef.current.currentTime = 0;
+                                }
+                                if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                                if (autoPlayTimeoutRef.current) clearTimeout(autoPlayTimeoutRef.current);
+                                setIndex(newIndex);
+                            }}
+                        />
+                    </div>
                 </div>
 
                 {/* Main Content Grid */}
