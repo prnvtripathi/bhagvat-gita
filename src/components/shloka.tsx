@@ -294,13 +294,27 @@ export default function Shloka() {
             <div className="container mx-auto px-4 py-8 max-w-6xl">
                 {/* Header */}
                 <div className="text-center mb-8">
-                    <h1 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-orange-600 to-yellow-600 bg-clip-text text-transparent">
+                    <h1 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-orange-600 to-yellow-600 bg-clip-text text-transparent py-3">
                         श्रीमद्भगवद्गीता
                     </h1>
                     <p className="text-lg md:text-xl text-muted-foreground mb-4">Bhagavad Gita</p>
 
                     {/* Progress Indicator */}
-                    <ProgressIndicator current={index} total={data.length} />
+                    <ProgressIndicator
+                        current={index}
+                        total={data.length}
+                        onChange={(newIndex) => {
+                            // Stop any ongoing playback if user seeks
+                            if (isAutoPlaying) {
+                                setIsAutoPlaying(false);
+                                setIsPlaying(false);
+                                stopSpeaking();
+                                if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                                if (autoPlayTimeoutRef.current) clearTimeout(autoPlayTimeoutRef.current);
+                            }
+                            setIndex(newIndex);
+                        }}
+                    />
                 </div>
 
                 {/* Main Content Grid */}
@@ -312,23 +326,10 @@ export default function Shloka() {
                             meaning={currentMeaning}
                             showWordMeaning={showWordMeaning}
                         />
-
-                        {/* Audio Controls */}
-                        <div className="text-center">
-                            <AudioControls
-                                isPlaying={isPlaying}
-                                onPlayPause={handlePlayPause}
-                                onPrevious={handlePrevious}
-                                onNext={handleNext}
-                                onReciteShloka={handleReciteShloka}
-                                onReciteMeaning={handleReciteMeaning}
-                                isAutoPlaying={isAutoPlaying}
-                            />
-                        </div>
                     </div>
 
                     {/* Settings Panel - Takes 1/3 of the space on large screens */}
-                    <div className="lg:col-span-1">
+                    <div className="lg:col-span-1 flex md:flex-col flex-col-reverse gap-3">
                         <LanguageControls
                             language={language}
                             onLanguageChange={handleLanguageChange}
@@ -336,6 +337,17 @@ export default function Shloka() {
                             onToggleWordMeaning={handleToggleWordMeaning}
                             voiceRate={voiceRate}
                             onVoiceRateChange={handleVoiceRateChange}
+                        />
+
+                        {/* Audio Controls */}
+                        <AudioControls
+                            isPlaying={isPlaying}
+                            onPlayPause={handlePlayPause}
+                            onPrevious={handlePrevious}
+                            onNext={handleNext}
+                            onReciteShloka={handleReciteShloka}
+                            onReciteMeaning={handleReciteMeaning}
+                            isAutoPlaying={isAutoPlaying}
                         />
                     </div>
                 </div>

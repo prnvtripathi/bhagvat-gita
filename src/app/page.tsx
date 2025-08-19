@@ -2,7 +2,7 @@ import Shloka from "@/components/shloka";
 
 export default function Home() {
   return (
-    <main>
+    <main className="min-h-screen">
       <Shloka />
     </main>
   );

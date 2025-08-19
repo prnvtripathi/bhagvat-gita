@@ -13,7 +13,7 @@ export const ShlokaCard: React.FC<ShlokaCardProps> = ({
     meaning,
     showWordMeaning
 }) => (
-    <Card className="mb-6">
+    <Card className="">
         <CardHeader className="text-center pb-4">
             <CardTitle className="text-xl">
                 अध्याय {shloka.Chapter}, श्लोक {shloka.Verse}
