@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Papa from "papaparse";
 import { Loader2, Play } from "lucide-react";
 import { ShlokaRow } from "@/types/shloka.types";
+import { useLocalStorage } from "@/hooks/use-local-storage";
 
-// Import all the modular components
+// Components
 import { ProgressIndicator } from "@/components/shloka/progress-indicator";
 import { AudioControls } from "@/components/shloka/audio-controls";
 import { LanguageControls } from "@/components/shloka/language-controls";
@@ -13,15 +14,16 @@ import { ShlokaCard } from "@/components/shloka/shloka-card";
 import { useSpeech } from "@/hooks/use-speech";
 
 export default function Shloka() {
-    // State management
-    const [data, setData] = useState<ShlokaRow[]>([]);
-    const [index, setIndex] = useState(0);
-    const [language, setLanguage] = useState<"hindi" | "english">("english");
-    const [showWordMeaning, setShowWordMeaning] = useState(false);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [isAutoPlaying, setIsAutoPlaying] = useState(false);
-    const [voiceRate, setVoiceRate] = useState(1);
-    const [isLoading, setIsLoading] = useState(true);
+
+    // State management (persisted)
+    const [data, setData] = useLocalStorage<ShlokaRow[]>("gita-data", []);
+    const [index, setIndex] = useLocalStorage<number>("gita-index", 0);
+    const [language, setLanguage] = useLocalStorage<"hindi" | "english">("gita-language", "english");
+    const [showWordMeaning, setShowWordMeaning] = useLocalStorage<boolean>("gita-showWordMeaning", false);
+    const [isPlaying, setIsPlaying] = useLocalStorage<boolean>("gita-isPlaying", false);
+    const [isAutoPlaying, setIsAutoPlaying] = useLocalStorage<boolean>("gita-isAutoPlaying", false);
+    const [voiceRate, setVoiceRate] = useLocalStorage<number>("gita-voiceRate", 1);
+    const [isLoading, setIsLoading] = useLocalStorage<boolean>("gita-isLoading", true);
 
     // Refs for managing timeouts and cleanup
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -32,6 +34,10 @@ export default function Shloka() {
 
     // Load CSV data on component mount
     useEffect(() => {
+        if (data.length > 0) {
+            setIsLoading(false);
+            return;
+        }
         const loadData = async () => {
             try {
                 Papa.parse("/csv/gita.csv", {
@@ -43,12 +49,9 @@ export default function Shloka() {
                         if (results.errors.length > 0) {
                             console.warn("CSV parsing warnings:", results.errors);
                         }
-
-                        // Filter out any invalid rows
                         const validData = (results.data as ShlokaRow[]).filter(
                             row => row.Shloka && row.Chapter && row.Verse
                         );
-
                         setData(validData);
                         setIsLoading(false);
                     },
@@ -62,20 +65,23 @@ export default function Shloka() {
                 setIsLoading(false);
             }
         };
-
         loadData();
     }, []);
 
-    // Enhanced auto-play functionality
+    // auto-play functionality
     const autoPlayCurrent = () => {
         if (!data[index]) return;
 
         const shloka = data[index];
         const meaning = language === "hindi" ? shloka.HinMeaning : shloka.EngMeaning;
 
+        const shlokaText = data[index].Shloka.split('||')[0].trim();
+        const cleanShloka = shlokaText.replace(/\|/g, '').trim();
+
+
         // First recite the shloka
         setIsPlaying(true);
-        speak(shloka.Shloka, "hi-IN", () => {
+        speak(cleanShloka, "hi-IN", () => {
             if (!isAutoPlaying) return; // Check if still auto-playing
 
             // Pause between shloka and meaning
@@ -184,7 +190,9 @@ export default function Shloka() {
         }
 
         setIsPlaying(true);
-        speak(data[index].Shloka, "hi-IN", () => {
+        const shlokaText = data[index].Shloka.split('||')[0].trim();
+        const cleanShloka = shlokaText.replace(/\|/g, '').trim();
+        speak(cleanShloka, "hi-IN", () => {
             setIsPlaying(false);
         });
     };
@@ -225,6 +233,7 @@ export default function Shloka() {
             if (autoPlayTimeoutRef.current) clearTimeout(autoPlayTimeoutRef.current);
             window.speechSynthesis.cancel();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Add keyboard shortcuts
@@ -245,9 +254,9 @@ export default function Shloka() {
                     break;
             }
         };
-
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener('keydown', handleKeyPress);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAutoPlaying, index, data.length]);
 
     // Loading state
@@ -367,5 +376,6 @@ export default function Shloka() {
             </div>
         </div>
     );
-}
 
+
+}

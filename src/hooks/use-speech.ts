@@ -11,7 +11,7 @@ export const useSpeech = (voiceRate: number) => {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = lang;
       utterance.rate = voiceRate;
-      utterance.pitch = 1;
+      utterance.pitch = 0.9;
       utterance.volume = 1;
 
       // Try to find a better voice
