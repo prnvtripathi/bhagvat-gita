@@ -10,17 +10,13 @@ interface LanguageControlsProps {
     onLanguageChange: (lang: "hindi" | "english") => void;
     showWordMeaning: boolean;
     onToggleWordMeaning: (show: boolean) => void;
-    voiceRate: number;
-    onVoiceRateChange: (rate: number) => void;
 }
 
 export const LanguageControls: React.FC<LanguageControlsProps> = ({
     language,
     onLanguageChange,
     showWordMeaning,
-    onToggleWordMeaning,
-    voiceRate,
-    onVoiceRateChange
+    onToggleWordMeaning
 }) => (
     <Card>
         <CardHeader>
@@ -52,21 +48,7 @@ export const LanguageControls: React.FC<LanguageControlsProps> = ({
                 />
             </div>
 
-            <div className="flex items-center justify-between">
-                <Label htmlFor="voice-rate">Speech Rate</Label>
-                <Select value={voiceRate.toString()} onValueChange={(value) => onVoiceRateChange(Number(value))}>
-                    <SelectTrigger className="w-20">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="0.5">0.5x</SelectItem>
-                        <SelectItem value="0.8">0.8x</SelectItem>
-                        <SelectItem value="1">1x</SelectItem>
-                        <SelectItem value="1.2">1.2x</SelectItem>
-                        <SelectItem value="1.5">1.5x</SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
+
         </CardContent>
     </Card>
 );
