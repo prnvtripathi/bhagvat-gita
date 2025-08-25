@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from "lucide-react";
 import { Card, CardFooter, CardHeader } from '../ui/card';
 import { Progress } from "@/components/ui/progress";
+import { Switch } from "@/components/ui/switch";
 
 interface AudioControlsProps {
     isPlaying: boolean;
@@ -15,6 +16,8 @@ interface AudioControlsProps {
     audioProgress: number;
     audioDuration: number;
     onSeek: (seekTime: number) => void;
+    reciteMeaningEnabled: boolean;
+    onToggleReciteMeaning: (enabled: boolean) => void;
 }
 
 
@@ -28,7 +31,9 @@ export const AudioControls: React.FC<AudioControlsProps> = ({
     isAutoPlaying,
     audioProgress,
     audioDuration,
-    onSeek
+    onSeek,
+    reciteMeaningEnabled,
+    onToggleReciteMeaning
 }) => {
     // Format time as mm:ss
     const formatTime = (s: number) => {
@@ -66,6 +71,16 @@ export const AudioControls: React.FC<AudioControlsProps> = ({
                         {formatTime(audioDuration)}
                     </span>
                 </div>
+            </div>
+
+            {/* Recite Meaning Toggle */}
+            <div className="flex items-center justify-between gap-2 px-4 pb-2">
+                <label htmlFor="recite-meaning-toggle" className="text-sm font-medium">Recite Meaning</label>
+                <Switch
+                    id="recite-meaning-toggle"
+                    checked={reciteMeaningEnabled}
+                    onCheckedChange={onToggleReciteMeaning}
+                />
             </div>
 
             {/* Main playback controls */}

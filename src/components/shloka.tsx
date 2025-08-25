@@ -21,6 +21,8 @@ export default function Shloka() {
     const [index, setIndex] = useLocalStorage<number>("gita-index", 0);
     const [language, setLanguage] = useLocalStorage<"hindi" | "english">("gita-language", "english");
     const [showWordMeaning, setShowWordMeaning] = useLocalStorage<boolean>("gita-showWordMeaning", false);
+    // Toggle for reciting meaning aloud
+    const [reciteMeaningEnabled, setReciteMeaningEnabled] = useLocalStorage<boolean>("gita-reciteMeaningEnabled", true);
     const [isPlaying, setIsPlaying] = useLocalStorage<boolean>("gita-isPlaying", false);
     const [isAutoPlaying, setIsAutoPlaying] = useLocalStorage<boolean>("gita-isAutoPlaying", false);
 
@@ -103,6 +105,21 @@ export default function Shloka() {
         const meaning = language === "hindi" ? shloka.HinMeaning : shloka.EngMeaning;
         // Pause before meaning
         timeoutRef.current = setTimeout(() => {
+            if (!reciteMeaningEnabled) {
+                setIsPlaying(false);
+                if (!isAutoPlaying) return;
+                // Pause before next shloka
+                autoPlayTimeoutRef.current = setTimeout(() => {
+                    if (!isAutoPlaying) return;
+                    if (index < data.length - 1) {
+                        setIndex(prev => prev + 1);
+                    } else {
+                        setIsAutoPlaying(false);
+                        setIsPlaying(false);
+                    }
+                }, 2000);
+                return;
+            }
             speak(meaning, language === "hindi" ? "hi-IN" : "en-US", () => {
                 setIsPlaying(false);
                 if (!isAutoPlaying) return;
@@ -229,6 +246,10 @@ export default function Shloka() {
             audioRef.current.currentTime = 0;
         }
         stopSpeaking();
+        if (!reciteMeaningEnabled) {
+            setIsPlaying(false);
+            return;
+        }
         const meaning = language === "hindi" ? data[index].HinMeaning : data[index].EngMeaning;
         setIsPlaying(true);
         speak(meaning, language === "hindi" ? "hi-IN" : "en-US", () => {
@@ -243,6 +264,11 @@ export default function Shloka() {
 
     const handleToggleWordMeaning = (show: boolean) => {
         setShowWordMeaning(show);
+    };
+
+    // Handler for recite meaning toggle
+    const handleToggleReciteMeaning = (enabled: boolean) => {
+        setReciteMeaningEnabled(enabled);
     };
 
 
@@ -420,6 +446,8 @@ export default function Shloka() {
                             audioProgress={audioProgress}
                             audioDuration={audioDuration}
                             onSeek={handleSeek}
+                            reciteMeaningEnabled={reciteMeaningEnabled}
+                            onToggleReciteMeaning={handleToggleReciteMeaning}
                         />
                     </div>
                 </div>
