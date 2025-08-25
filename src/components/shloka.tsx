@@ -170,26 +170,27 @@ export default function Shloka() {
 
     // Main play/pause handler
     const handlePlayPause = () => {
+        // Always stop everything before starting play
+        stopSpeaking();
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+        }
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+        }
+        if (autoPlayTimeoutRef.current) {
+            clearTimeout(autoPlayTimeoutRef.current);
+            autoPlayTimeoutRef.current = null;
+        }
         if (isAutoPlaying) {
             // Stop auto-playing
             setIsAutoPlaying(false);
             setIsPlaying(false);
-            stopSpeaking();
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.currentTime = 0;
-            }
-            // Clear all timeouts
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-                timeoutRef.current = null;
-            }
-            if (autoPlayTimeoutRef.current) {
-                clearTimeout(autoPlayTimeoutRef.current);
-                autoPlayTimeoutRef.current = null;
-            }
         } else {
             setIsAutoPlaying(true);
+            setIsPlaying(true);
             autoPlayCurrent();
         }
     };
@@ -226,10 +227,17 @@ export default function Shloka() {
 
     // Individual recitation handlers
     const handleReciteShloka = () => {
+        // Always stop everything before starting
         setIsAutoPlaying(false);
+        setIsPlaying(false);
+        stopSpeaking();
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+        }
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
         if (autoPlayTimeoutRef.current) clearTimeout(autoPlayTimeoutRef.current);
-        stopSpeaking();
+        // Start shloka audio
         setIsPlaying(true);
         if (audioRef.current) {
             audioRef.current.currentTime = 0;
@@ -238,17 +246,19 @@ export default function Shloka() {
     };
 
     const handleReciteMeaning = () => {
+        // Always stop everything before starting
         setIsAutoPlaying(false);
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        if (autoPlayTimeoutRef.current) clearTimeout(autoPlayTimeoutRef.current);
+        setIsPlaying(false);
         if (audioRef.current) {
             audioRef.current.pause();
             audioRef.current.currentTime = 0;
         }
         stopSpeaking();
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        if (autoPlayTimeoutRef.current) clearTimeout(autoPlayTimeoutRef.current);
+        // If toggle is off, enable it and recite meaning
         if (!reciteMeaningEnabled) {
-            setIsPlaying(false);
-            return;
+            setReciteMeaningEnabled(true);
         }
         const meaning = language === "hindi" ? data[index].HinMeaning : data[index].EngMeaning;
         setIsPlaying(true);
